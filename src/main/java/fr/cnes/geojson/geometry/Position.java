@@ -31,42 +31,96 @@ import java.util.logging.Logger;
  */
 public class Position {
 
+    /**
+     * Logger.
+     */
     private static final Logger LOGGER = Logger.getLogger(Position.class.getName());
     
+    /**
+     * longitude in decimal degree.
+     */
     private final double longitude;
+    
+    /**
+     * latitude in decimal degree.
+     */
     private final double latitude;
+    
+    /**
+     * altitude in meter.
+     */
     private final double altitude;
 
+    /**
+     * Creates a position with a longitude, a latitude and an altitude.
+     * @param longitude longitude in decimal degree
+     * @param latitude latitude in decimal degree
+     * @param altitude altitude in meter
+     */
     public Position(double longitude, double latitude, double altitude) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.altitude = altitude;
     }
 
+    /**
+     * Creates a position with a longitude and a latitude.
+     * @param longitude longitude in decimal degree
+     * @param latitude latitude in decimal degree
+     */
     public Position(double longitude, double latitude) {
         this(longitude, latitude, Double.NaN);
     }
 
-    public Position(double[] point) {
-        this(point[0], point[1], point.length == 3 ? point[2] : Double.NaN);
+    /**
+     * Creates a position with a set of points.
+     * A point contains at least a longitude and a latitude. In addition, a point
+     * can contain a third dimension, which is the altitude. The longitude and
+     * latitude are expressed in decimal degree whereas the latitude is expressed
+     * in meter.
+     * 
+     * @param points points
+     */
+    public Position(double[] points) {
+        this(points[0], points[1], points.length == 3 ? points[2] : Double.NaN);
     }
 
+    /**
+     * Returns the longitude in decimal degree.
+     * @return the longitude in decimal degree
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Returns the latitude in decimal degree.
+     * @return the latitude in decimal degree
+     */
     public double getLatitude() {
         return latitude;
     }
 
+    /**
+     * Returns the altitude in meter.
+     * @return the altitude in meter
+     */
     public double getAltitude() {
         return altitude;
     }
 
+    /**
+     * Returns the position as a double array.
+     * @return the position as a double array
+     */
     public double[] toArray() {
         return Double.isNaN(getAltitude()) ? new double[]{getLongitude(), getLatitude()} : new double[]{getLongitude(), getLatitude(), getAltitude()};
     }
 
+    /**
+     * Returns the number of points.
+     * @return the number of points
+     */
     public int length() {
         return Double.isNaN(latitude) ? 2 : 3;
     }

@@ -18,6 +18,7 @@
  ******************************************************************************/
 package fr.cnes.geojson.object;
 
+import fr.cnes.geojson.Utils;
 import fr.cnes.geojson.WriterOptions;
 import fr.cnes.geojson.crs.Crs;
 import java.util.Arrays;
@@ -44,23 +45,43 @@ public abstract class GeoJsonObject implements WriterOptions {
     
     private static final Logger LOGGER = Logger.getLogger(GeoJsonObject.class.getName());    
     
+    /**
+     * Type of the GeoJson object.
+     * The possible GeoJson objects are: FeatureCollection, Feature, Geometry   
+     */
     private String type;
+    
+    /**
+     * Coordinate Reference System.
+     */
     private Crs crs = null;
+    
+    /**
+     * Bounding box.
+     */
     private double[] bbox = null;
+    
+    /**
+     * Foreign members.
+     */
     private Map<String, Object> foreignMembers = new HashMap<>();
+    
+    /**
+     * Options for fixing problems.
+     */
     private final Map<String, Object> options = new HashMap<>();
     
     /**
-     * Creates a empty GeoJson object.
-     * @param type GeoJson type
+     * Creates a empty GeoJson object.     
+     * @param type GeoJson object type
      */
     protected GeoJsonObject(String type) {
         this.type = type;
     }
     
-
     @Override
     public final void setOptions(final Map<String, Object> options) {
+        Utils.checkNotNull(options);
         this.options.clear();
         this.options.putAll(options);
     }
@@ -87,7 +108,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
-     * Returns the coordinate reference system
+     * Returns the coordinate reference system.
      * @return the crs
      */
     public Crs getCrs() {
@@ -95,7 +116,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
-     * Sets the coordinate reference system
+     * Sets the coordinate reference system.
      * @param crs the crs to set
      */
     public void setCrs(final Crs crs) {
@@ -103,7 +124,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
-     * Returns the bbox.
+     * Returns the bounding box.
      * @return the bbox
      */
     public double[] getBbox() {
@@ -111,7 +132,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
-     * Sets the bbox
+     * Sets the bounding box.
      * @param bbox the bbox to set
      */
     public void setBbox(double[] bbox) {

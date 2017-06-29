@@ -286,10 +286,14 @@ public class MultiPolygon extends Geometry {
         double[] bbox = maxAltValue != Double.MIN_VALUE 
                 ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
                 : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue};
-        LOGGER.exiting(MultiPolygon.class.getName(), "computeBbox", bbox);                                              
         this.setBbox(bbox);          
+        LOGGER.exiting(MultiPolygon.class.getName(), "computeBbox", bbox);                                                      
     }
 
+    /**
+     * Returns the number of polygons.
+     * @return 
+     */
     @Override
     public int length() {
         LOGGER.entering(MultiPolygon.class.getName(), "length");                                        

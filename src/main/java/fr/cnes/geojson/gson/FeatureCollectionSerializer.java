@@ -61,8 +61,5 @@ public class FeatureCollectionSerializer implements JsonSerializer<FeatureCollec
             features = new JsonArray();
         }       
         object.add("features", features);
-    }
-    
-    
-    
+    }            
 }

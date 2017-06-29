@@ -21,13 +21,8 @@
 package fr.cnes.geojson;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import fr.cnes.geojson.gson.FeatureCollectionSerializer;
-import fr.cnes.geojson.gson.FeatureSerializer;
-import fr.cnes.geojson.gson.GeometrySerializer;
 import fr.cnes.geojson.object.Feature;
 import fr.cnes.geojson.object.FeatureCollection;
-import fr.cnes.geojson.object.Geometry;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

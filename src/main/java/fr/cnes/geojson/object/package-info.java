@@ -20,12 +20,22 @@
  * Provides the classes representing the GeoJson Objects.
  * 
  * Here is the different GeoJSON object as defined in the 
- * <a href="https://tools.ietf.org/html/rfc7946#page-6">GeoJSON format</>.
+ * <a href="https://tools.ietf.org/html/rfc7946#page-6">GeoJSON format</a>.
  * <ul>
  * <li>{@link fr.cnes.geojson.object.GeoJsonObject} : abstract class</li>
  * <li>{@link fr.cnes.geojson.object.Geometry} : concrete Geometry class</li>
  * <li>{@link fr.cnes.geojson.object.Feature} : concrete Feature class</li>
  * <li>{@link fr.cnes.geojson.object.FeatureCollection} : concrete FeatureCollection class</li>
  * </ul>
+ * <pre>
+ *                  GeoJsonObject
+ *                       ^
+ *                       |
+ *          ----------------------------
+ *          |            |             |
+ *      Geometry      Feature       FeatureCollection
+ * </pre>
+ * A FeatureCollection is mainly a collection of Feature objects. A Feature 
+ * mainly contains a geometry and some properties.
  */
 package fr.cnes.geojson.object;

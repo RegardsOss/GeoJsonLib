@@ -57,16 +57,21 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
      */
     protected Geometry(final String type) {
         super(type);
+        LOGGER.entering(Geometry.class.getName(), "Constructor", type);
+        LOGGER.exiting(Geometry.class.getName(), "Constructor");        
     }    
     
     /**
      * Creates an empty geometry.
+     * null is returned when the wished geometry cannot be created.
      * @param <T> whatever geometry
-     * @param clazz Class to create
-     * @param options the options from GeoJsonWriter
+     * @param clazz geometry to create
+     * @param options the defined options in GeoJsonWriter
      * @return the geometry
+     * @see fr.cnes.geojson.AbstractGeoJsonUtility#options
      */
     public static <T extends Geometry> T createGeometry(final Class<? extends Geometry> clazz, Map<String, Object> options) {
+        LOGGER.entering(Geometry.class.getName(), "createGeometry", new Object[]{clazz, options});        
         T geom;
         try {
             geom = (T) clazz.getConstructor(Map.class).newInstance(options);
@@ -74,6 +79,7 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
             Logger.getLogger(Geometry.class.getName()).log(Level.SEVERE, null, ex);
             geom = null;
         }
+        LOGGER.exiting(Geometry.class.getName(), "createGeometry", geom);
         return geom;
     } 
 
@@ -81,9 +87,13 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
      * Returns the geometry.
      * @param <T> whatever geometry
      * @return the geometry
+     * @see fr.cnes.geojson.geometry
      */
     public <T extends Geometry> T getShape() {
-        return (T) this;
+        LOGGER.entering(Geometry.class.getName(), "getShape");        
+        T geom = (T) this;
+        LOGGER.exiting(Geometry.class.getName(), "getShape", geom);        
+        return geom;
     }
     
     /**
@@ -105,7 +115,7 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
     public abstract void setCoordinates(final Object coordinates);
     
     /**
-     * Computes the Bbox.
+     * Computes the bounding box.
      */
     public abstract void computeBbox();   
              

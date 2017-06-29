@@ -19,6 +19,7 @@
 /**
  * Provides the classes to customize the serialization/deserialization of the 
  * GeoJSON.
- * Theses classes must be registered in GsonBuilder object.
+ * Theses classes are registered in GsonBuilder object.
+ * @see fr.cnes.geojson.AbstractGeoJsonUtility
  */
 package fr.cnes.geojson.gson;

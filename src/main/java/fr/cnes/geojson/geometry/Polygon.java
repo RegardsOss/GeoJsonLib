@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Provides a planetographic polygon. A polygon uses the concept of a linear
- * ring:
+ * Provides a planetographic polygon. 
+ * A polygon uses the concept of a linear ring:
  * <ul>
  * <li>A linear ring is a closed LineString with four or more positions.</li>
  * <li>The first and last positions are equivalent, and they MUST contain
@@ -48,31 +48,46 @@ import java.util.logging.Logger;
  */
 public final class Polygon extends MultiLineString {
 
+    /**
+     * Type of the geometry {@value}.
+     */
     private static final String POLYGON = "Polygon";
+    
+    /**
+     * Logger.
+     */
     private static final Logger LOGGER = Logger.getLogger(Polygon.class.getName());
 
     /**
-     * Minimum number of points in a polygon (3+the first one because is closed)
+     * Minimum number of points in a polygon (3+the first one because is closed) {@value}.
      */
     private static final int NB_POINTS = 4;
     
+    /**
+     * Creates an empty polygon with options coming from the GeoJsonWriter object
+     * @param options the options
+     * @see fr.cnes.geojson.AbstractGeoJsonUtility#options
+     */
     public Polygon(final Map<String, Object> options) {
         this();   
         this.setOptions(options);
     }
 
     /**
-     * Creates a polygon without points.
+     * Creates an empty polygon.
      */
     protected Polygon() {
         super(POLYGON);
     }
     
     /**
-     * Creates a polygon based on rings and GeoJsonWriter options.
-     * @param exteriorRing exterior rings
+     * Creates a polygon with rings and options coming from the GeoJsonWriter object.
+     * The exterior ring is counterclockwise whereas the interior rings are 
+     * clockwise.
+     * @param exteriorRing exterior ring
      * @param interiorRings holes
      * @param options options
+     * @see fr.cnes.geojson.AbstractGeoJsonUtility#options
      */
     public Polygon(final LineString[] exteriorRing, final List<LineString[]> interiorRings, final Map<String, Object> options) {
         this(exteriorRing, interiorRings);   
@@ -80,33 +95,38 @@ public final class Polygon extends MultiLineString {
     }    
 
     /**
-     * Creates a polygon based on a one exterior ring and holes.
-     *
+     * Creates a polygon with one exterior ring and holes.
+     * The default options are applied.
      * @param exteriorRing exterior ring
      * @param interiorRings holes
      */
-    protected Polygon(final LineString[] exteriorRing, List<LineString[]> interiorRings) {
+    protected Polygon(final LineString[] exteriorRing, final List<LineString[]> interiorRings) {
         super(POLYGON);
         setPoints(exteriorRing, interiorRings);
     }
 
     /**
-     * Creates a polygon based on points and GeoJsonWriter options
+     * Creates a polygon with points and options coming from GeoJsonWriter.
      * @param points points
      * @param options options
+     * @throws IllegalArgumentException Will be thrown when the polygon is not
+     * valid      
+     * @see fr.cnes.geojson.AbstractGeoJsonUtility#options
      */
-    public Polygon(double[][][] points, final Map<String, Object> options) {
+    public Polygon(double[][][] points, final Map<String, Object> options) throws IllegalArgumentException{
         this(points);   
         this.setOptions(options);
     }    
     
     /**
-     * Creates a polygon based on a set of points. 
+     * Creates a polygon with a set of points. 
      * The first element of the array is the exterior ring. The other ones are 
      * the interior rings.     
      * @param points points
+     * @throws IllegalArgumentException Will be thrown when the polygon is not
+     * valid      
      */
-    protected Polygon(double[][][] points) {
+    protected Polygon(double[][][] points) throws IllegalArgumentException {
         super(POLYGON);
         setPoints(points);
     }
@@ -117,7 +137,7 @@ public final class Polygon extends MultiLineString {
      * @throws IllegalArgumentException Will be thrown when the polygon is not
      * valid
      */
-    private void checkPolygon(double[][][] points) {
+    private void checkPolygon(double[][][] points) throws IllegalArgumentException {
         StringBuilder errorMessage = new StringBuilder();
         if (!isValidPolygon(points, errorMessage)) {
             throw new IllegalArgumentException(errorMessage.toString());
@@ -236,8 +256,22 @@ public final class Polygon extends MultiLineString {
         return result;
     }
 
+    /**
+     * Sets the points and valid the polygon.
+     * When the polygon is not valid, an exception is thrown.
+     * According to the {@link fr.cnes.geojson.AbstractGeoJsonUtility#options options}
+     * the problems can be fixed :
+     * <ul>
+     * <li>{@link fr.cnes.geojson.GeoJsonWriter#CLOSE_POLYGON}</li>
+     * <li>{@link fr.cnes.geojson.GeoJsonWriter#FIX_CLOCKWISE</li>
+     * <li>{@link fr.cnes.geojson.GeoJsonWriter#FIX_LONGITUDE</li>
+     * </ul>
+     * @param points points
+     * @throws IllegalArgumentException Will be thrown when the polygon is not
+     * valid     
+     */
     @Override
-    public final void setPoints(double[][][] points) {
+    public final void setPoints(double[][][] points) throws IllegalArgumentException {
         fixClosePolygon(points);
         fixClockwise(points);
         fixLongitude(points);
@@ -245,6 +279,10 @@ public final class Polygon extends MultiLineString {
         checkPolygon(points);
     }
     
+    /**
+     * Fix closed polygon.
+     * @param rings rings of the polygon
+     */
     private void fixClosePolygon(double[][][] rings) {
         if(this.getOptions().containsKey(GeoJsonWriter.CLOSE_POLYGON)
                 && (boolean)this.getOptions().get(GeoJsonWriter.CLOSE_POLYGON)) {
@@ -261,6 +299,10 @@ public final class Polygon extends MultiLineString {
         }
     }
     
+    /**
+     * Fix clockwise.
+     * @param points rings of the polygon
+     */
     private void fixClockwise(double[][][] points) {
         if(this.getOptions().containsKey(GeoJsonWriter.FIX_CLOCKWISE)
                 && (boolean)this.getOptions().get(GeoJsonWriter.FIX_CLOCKWISE)) {            
@@ -301,7 +343,7 @@ public final class Polygon extends MultiLineString {
     /**
      * Sets the points.
      * @param exteriorRing exterior ring
-     * @param interiorRings home
+     * @param interiorRings holes
      */
     public final void setPoints(LineString[] exteriorRing, List<LineString[]> interiorRings) {
         double[][][] points = computePolygonFromLineStrings(exteriorRing, interiorRings);
@@ -339,8 +381,8 @@ public final class Polygon extends MultiLineString {
         double[][] points = new double[size][nbDims];
 
         int destPos = 0;
-        for (int i = 0; i < lineStrings.length; i++) {
-            double[][] lineString = lineStrings[i].toDouble2DArray();
+        for (LineString line : lineStrings) {
+            double[][] lineString = line.toDouble2DArray();
             System.arraycopy(lineString, 0, points, destPos, lineString.length);
             destPos += lineString.length - 1;
         }

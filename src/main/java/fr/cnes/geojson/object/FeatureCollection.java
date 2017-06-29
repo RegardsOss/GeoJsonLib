@@ -34,14 +34,31 @@ import java.util.logging.Logger;
  */
 public class FeatureCollection extends GeoJsonObject {
 
+    /**
+     * Type of the GeoJson object {@value}.
+     */
     public static final String TYPE = "FeatureCollection";
+    
+    /**
+     * Logger.
+     */
     private static final Logger LOGGER = Logger.getLogger(FeatureCollection.class.getName());    
     
+    /**
+     * Set of features.
+     */
     public List<Feature> features = new ArrayList<>();
     
+    /**
+     * Creates a FeatureCollection with {@link fr.cnes.geojson.AbstractGeoJsonUtility#options options}
+     * from GeoJsonWriter
+     * @param options the options
+     */
     public FeatureCollection(final Map<String, Object> options) {
         this();
+        LOGGER.entering(FeatureCollection.class.getName(), "Constructor",options);
         this.setOptions(options);
+        LOGGER.exiting(FeatureCollection.class.getName(), "Constructor");        
     }    
 
     /**
@@ -49,13 +66,17 @@ public class FeatureCollection extends GeoJsonObject {
      */
     protected FeatureCollection() {
         super(TYPE);
+        LOGGER.entering(FeatureCollection.class.getName(), "Constructor");        
+        LOGGER.exiting(FeatureCollection.class.getName(), "Constructor");        
     }
 
     /**
-     * Returns the features
+     * Returns the features.
      * @return the features
      */
     public List<Feature> getFeatures() {
+        LOGGER.entering(FeatureCollection.class.getName(), "getFeatures");        
+        LOGGER.exiting(FeatureCollection.class.getName(), "getFeatures", features);        
         return features;
     }
 
@@ -64,7 +85,9 @@ public class FeatureCollection extends GeoJsonObject {
      * @param features the feature to set
      */
     public void setFeatures(final List<Feature> features) {
+        LOGGER.entering(FeatureCollection.class.getName(), "setFeatures", features);                
         this.features = features;
+        LOGGER.exiting(FeatureCollection.class.getName(), "setFeatures");        
     }
 
     @Override
@@ -84,10 +107,7 @@ public class FeatureCollection extends GeoJsonObject {
         if(!super.equals(fc)) {
             return false;
         }
-        if(!this.getFeatures().equals(fc.getFeatures())) {
-            return false;
-        }
-        return true;
+        return this.getFeatures().equals(fc.getFeatures());
     }
 
     @Override

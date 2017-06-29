@@ -50,11 +50,15 @@ public class GeometrySerializer implements JsonSerializer<Geometry>, JsonDeseria
  
     public GeometrySerializer() {
         super();
+        LOGGER.entering(GeometrySerializer.class.getName(), "Constructor");
+        LOGGER.exiting(GeometrySerializer.class.getName(), "Constructor");        
     }
 
     public GeometrySerializer(final Map<String, Object> options) {
         super();
+        LOGGER.entering(GeometrySerializer.class.getName(), "Constructor", options);        
         this.options = options;
+        LOGGER.exiting(GeometrySerializer.class.getName(), "Constructor");        
     }
 
     @Override

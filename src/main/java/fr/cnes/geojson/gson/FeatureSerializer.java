@@ -1,5 +1,4 @@
-/**
- * ****************************************************************************
+/******************************************************************************
  * Copyright 2017 CNES - CENTRE NATIONAL d'ETUDES SPATIALES
  *
  * This file is part of Regards.
@@ -39,11 +38,7 @@ import java.util.logging.Logger;
  */
 public class FeatureSerializer implements JsonSerializer<Feature> {
 
-    private static final Logger LOGGER = Logger.getLogger(FeatureSerializer.class.getName());
-    
-    public FeatureSerializer(){
-        super();
-    }
+    private static final Logger LOGGER = Logger.getLogger(FeatureSerializer.class.getName());    
 
     @Override
     public JsonElement serialize(Feature feature, Type type, JsonSerializationContext context) {

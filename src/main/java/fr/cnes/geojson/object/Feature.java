@@ -42,9 +42,15 @@ import java.util.logging.Logger;
  */
 public class Feature extends GeoJsonObject {
 
+    /**
+     * Type of the GeoJson object {@value}.
+     */
     private static final String TYPE = "Feature";
+    
+    /**
+     * Logger.
+     */
     private static final Logger LOGGER = Logger.getLogger(Feature.class.getName());    
-
 
     /**
      * Optional identifier.
@@ -66,11 +72,13 @@ public class Feature extends GeoJsonObject {
     /**
      * Creates a feature with {@link fr.cnes.geojson.AbstractGeoJsonUtility#options options}
      * from GeoJsonWriter
-     * @param options      
+     * @param options options     
      */
     public Feature(final Map<String, Object> options) {
         this();
+        LOGGER.entering(Feature.class.getName(), "Constructor", options);
         this.setOptions(options);
+        LOGGER.exiting(Feature.class.getName(), "Constructor");        
     }
 
     /**
@@ -78,6 +86,8 @@ public class Feature extends GeoJsonObject {
      */
     protected Feature() {
         super(TYPE);
+        LOGGER.entering(Feature.class.getName(), "Constructor");
+        LOGGER.entering(Feature.class.getName(), "Constructor");        
     }
 
     /**
@@ -85,6 +95,8 @@ public class Feature extends GeoJsonObject {
      * @return the geometry
      */
     public Geometry getGeometry() {
+        LOGGER.entering(Feature.class.getName(), "getGeometry");
+        LOGGER.exiting(Feature.class.getName(), "getGeometry", geometry);
         return geometry;
     }
 
@@ -93,6 +105,8 @@ public class Feature extends GeoJsonObject {
      * @param geometry the geometry to set
      */
     public void setGeometry(final Geometry geometry) {
+        LOGGER.entering(Feature.class.getName(), "setGeometry", geometry);        
+        LOGGER.exiting(Feature.class.getName(), "setGeometry");        
         this.geometry = geometry;
     }
 
@@ -101,6 +115,8 @@ public class Feature extends GeoJsonObject {
      * @return the properties
      */
     public HashMap<String, Object> getProperties() {
+        LOGGER.entering(Feature.class.getName(), "getProperties");
+        LOGGER.exiting(Feature.class.getName(), "getProperties", properties);        
         return properties;
     }
 
@@ -109,6 +125,8 @@ public class Feature extends GeoJsonObject {
      * @param properties the properties to set
      */
     public void setProperties(final HashMap<String, Object> properties) {
+        LOGGER.entering(Feature.class.getName(), "setProperties", properties);        
+        LOGGER.exiting(Feature.class.getName(), "setProperties");        
         this.properties = properties;
     }
 
@@ -117,6 +135,8 @@ public class Feature extends GeoJsonObject {
      * @return the id
      */
     public String getId() {
+        LOGGER.entering(Feature.class.getName(), "getId");        
+        LOGGER.exiting(Feature.class.getName(), "getId", id);        
         return id;
     }
 
@@ -125,6 +145,8 @@ public class Feature extends GeoJsonObject {
      * @param id the id to set
      */
     public void setId(final String id) {
+        LOGGER.entering(Feature.class.getName(), "setId", id);
+        LOGGER.entering(Feature.class.getName(), "setId");        
         this.id = id;
     }
     
