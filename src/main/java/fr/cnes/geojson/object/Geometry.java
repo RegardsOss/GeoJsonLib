@@ -61,9 +61,9 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
     
     /**
      * Creates an empty geometry.
-     * @param <T>
+     * @param <T> whatever geometry
      * @param clazz Class to create
-     * @param options
+     * @param options the options from GeoJsonWriter
      * @return the geometry
      */
     public static <T extends Geometry> T createGeometry(final Class<? extends Geometry> clazz, Map<String, Object> options) {
@@ -79,7 +79,7 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
 
     /**
      * Returns the geometry.
-     * @param <T> geometry
+     * @param <T> whatever geometry
      * @return the geometry
      */
     public <T extends Geometry> T getShape() {

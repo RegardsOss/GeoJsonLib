@@ -71,6 +71,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }    
 
     /**
+     * Returns the type of GeoJsonObject (feature, featureCollection, geometry)
      * @return the type
      */
     public String getType() {
@@ -78,13 +79,15 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
+     * Sets the type of GeoJsonObject
      * @param type the type to set
      */
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
     /**
+     * Returns the coordinate reference system
      * @return the crs
      */
     public Crs getCrs() {
@@ -92,13 +95,15 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
+     * Sets the coordinate reference system
      * @param crs the crs to set
      */
-    public void setCrs(Crs crs) {
+    public void setCrs(final Crs crs) {
         this.crs = crs;
     }
 
     /**
+     * Returns the bbox.
      * @return the bbox
      */
     public double[] getBbox() {
@@ -106,6 +111,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
+     * Sets the bbox
      * @param bbox the bbox to set
      */
     public void setBbox(double[] bbox) {
@@ -113,6 +119,7 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
+     * Returns the foreignMembers.
      * @return the foreignMembers
      */
     public Map<String, Object> getForeignMembers() {
@@ -120,9 +127,10 @@ public abstract class GeoJsonObject implements WriterOptions {
     }
 
     /**
+     * Sets the foreign members.
      * @param foreignMembers the foreignMembers to set
      */
-    public void setForeignMembers(Map<String, Object> foreignMembers) {
+    public void setForeignMembers(final Map<String, Object> foreignMembers) {
         this.foreignMembers = foreignMembers;
     }
     

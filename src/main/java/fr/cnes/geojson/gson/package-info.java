@@ -17,6 +17,8 @@
  * along with Regards.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 /**
- * Provides the classes to customize the serialize/deserializer.
+ * Provides the classes to customize the serialization/deserialization of the 
+ * GeoJSON.
+ * Theses classes must be registered in GsonBuilder object.
  */
 package fr.cnes.geojson.gson;

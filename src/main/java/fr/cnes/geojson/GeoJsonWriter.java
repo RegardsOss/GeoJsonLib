@@ -22,17 +22,11 @@ package fr.cnes.geojson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import fr.cnes.geojson.gson.DoubleNaNSerializer;
-import fr.cnes.geojson.gson.FeatureCollectionSerializer;
-import fr.cnes.geojson.gson.FeatureSerializer;
-import fr.cnes.geojson.gson.FloatNaNSerializer;
-import fr.cnes.geojson.gson.GeometrySerializer;
 import fr.cnes.geojson.object.Feature;
 import fr.cnes.geojson.object.FeatureCollection;
 import fr.cnes.geojson.object.Geometry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -40,7 +34,7 @@ import java.util.logging.Logger;
  *
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
-public class GeoJsonWriter implements WriterOptions {
+public class GeoJsonWriter extends AbstractGeoJsonUtility implements WriterOptions {
 
     /**
      * Option for display the GeoJSON is an pretty way.
@@ -73,28 +67,16 @@ public class GeoJsonWriter implements WriterOptions {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(GeoJsonWriter.class.getName());
-    
-    /**
-     * Options for GeoJsonWriter.
-     * The available options are :
-     * <ul>
-     * <li>{@link fr.cnes.geojson.GeoJsonWriter#CLOSE_POLYGON}</li>
-     * <li>{@link fr.cnes.geojson.GeoJsonWriter#FIX_CLOCKWISE}</li>
-     * <li>{@link fr.cnes.geojson.GeoJsonWriter#FIX_LONGITUDE}</li>
-     * <li>{@link fr.cnes.geojson.GeoJsonWriter#FIX_NAN}</li>
-     * <li>{@link fr.cnes.geojson.GeoJsonWriter#PRETTY_DISPLAY}</li>
-     * </ul>
-     */
-    private final Map<String, Object> options;
+    private static final Logger LOGGER = Logger.getLogger(GeoJsonWriter.class.getName());    
 
     /**
      * Creates a GeoJson writer based on customized options.     
      * @param options Options for writer.
      */
     public GeoJsonWriter(final Map<String, Object> options) {
+        super(options);
         LOGGER.entering(GeoJsonWriter.class.getName(), "Constructor", options);
-        this.options = options;
+        this.setOptions(options);
     }
 
     /**
@@ -109,34 +91,31 @@ public class GeoJsonWriter implements WriterOptions {
      * </ul>
      */
     public GeoJsonWriter() {
-        LOGGER.entering(GeoJsonWriter.class.getName(), "Constructor");        
-        this.options = new HashMap<>();
-        this.options.put(PRETTY_DISPLAY, false);
-        this.options.put(FIX_CLOCKWISE, false);
-        this.options.put(CLOSE_POLYGON, false);
-        this.options.put(FIX_LONGITUDE, false);
-        this.options.put(FIX_NAN, false);
-        LOGGER.finer(String.format("Default options fot GeoJsonWriter: %s", this.options));
+        super();
+        LOGGER.entering(GeoJsonWriter.class.getName(), "Constructor");  
+        Map<String,Object> defaultOptions = new HashMap<>();
+        defaultOptions.put(PRETTY_DISPLAY, false);
+        defaultOptions.put(FIX_CLOCKWISE, false);
+        defaultOptions.put(CLOSE_POLYGON, false);
+        defaultOptions.put(FIX_LONGITUDE, false);
+        defaultOptions.put(FIX_NAN, false);
+        this.setOptions(defaultOptions);
+        LOGGER.finer(String.format("Default options fot GeoJsonWriter: %s", defaultOptions));
     }
-
+    
     /**
-     * Sets the options for GeoJsonWriter.
-     * Clear the current options and set the new ones.
-     * @param options options
+     * Converts an object to GeoJson.
+     * This object must be a Feature or a FeatureCollection.
+     * @param obj Feature or FeatureCollection
+     * @return the GeoJSON
      */
-    @Override
-    public void setOptions(final Map<String, Object> options) {
-        this.options.clear();
-        this.options.putAll(options);
-    }
-
-    /**
-     * Returns the current options.
-     * @return the options
-     */
-    @Override
-    public Map<String, Object> getOptions() {
-        return this.options;
+    protected String toJsonFromObj(Object obj) {
+        GsonBuilder gsonBuilder = this.getGsonBuilder();
+        if ((boolean) this.getOptions().get(PRETTY_DISPLAY)) {           
+            gsonBuilder = gsonBuilder.setPrettyPrinting();
+        }
+        Gson gson = gsonBuilder.create();     
+        return gson.toJson(obj);
     }
 
     /**
@@ -145,19 +124,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return a GeoJSON String
      */
     public String toJson(final FeatureCollection featureCollection) {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(Geometry.class, new GeometrySerializer(this.options))
-                .registerTypeAdapter(Feature.class, new FeatureSerializer())
-                .registerTypeAdapter(FeatureCollection.class, new FeatureCollectionSerializer())
-                .registerTypeAdapter(Double.class, new DoubleNaNSerializer())
-                .registerTypeAdapter(Float.class, new FloatNaNSerializer())                
-                .serializeNulls()
-                .serializeSpecialFloatingPointValues();
-        if ((boolean) this.getOptions().get(PRETTY_DISPLAY)) {           
-            gsonBuilder = gsonBuilder.setPrettyPrinting();
-        }
-        Gson gson = gsonBuilder.create();
-        return gson.toJson(featureCollection);
+        return this.toJsonFromObj(featureCollection);
     }
 
     /**
@@ -166,19 +133,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return a GeoJSON
      */
     public String toJson(final Feature feature) {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(Geometry.class, new GeometrySerializer(this.options))
-                .registerTypeAdapter(Feature.class, new FeatureSerializer())
-                .registerTypeAdapter(FeatureCollection.class, new FeatureCollectionSerializer())
-                .registerTypeAdapter(Double.class, new DoubleNaNSerializer())
-                .registerTypeAdapter(Float.class, new FloatNaNSerializer())                                
-                .serializeNulls()
-                .serializeSpecialFloatingPointValues();
-        if ((boolean) this.getOptions().get(PRETTY_DISPLAY)) {
-            gsonBuilder = gsonBuilder.setPrettyPrinting();
-        }
-        Gson gson = gsonBuilder.create();
-        return gson.toJson(feature);
+        return this.toJsonFromObj(feature);        
     }
 
     /**
@@ -188,7 +143,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return the feature
      */
     public Feature createFeature() {
-        return new Feature(options);
+        return new Feature(this.getOptions());
     }
 
     /**
@@ -198,7 +153,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return the feature collection
      */
     public FeatureCollection createFeatureCollection() {
-        return new FeatureCollection(options);
+        return new FeatureCollection(this.getOptions());
     }
 
     /**
@@ -210,7 +165,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return An empty geometry without any points.
      */
     public <T extends Geometry> T createGeometry(final Class<? extends Geometry> clazz) {
-        return Geometry.createGeometry(clazz, options);
+        return Geometry.createGeometry(clazz, this.getOptions());
     }
 
     /**
@@ -223,7 +178,7 @@ public class GeoJsonWriter implements WriterOptions {
      * @return A geometry with points
      */    
     public <T extends Geometry> T createGeometry(final Class<? extends Geometry> clazz, Object coordinates) {
-        T geom = Geometry.createGeometry(clazz, options);
+        T geom = Geometry.createGeometry(clazz, this.getOptions());
         geom.setCoordinates(coordinates);
         return geom;
     }

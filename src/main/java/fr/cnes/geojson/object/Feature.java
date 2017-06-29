@@ -52,15 +52,22 @@ public class Feature extends GeoJsonObject {
     private String id;
     
     /**
-     * Geometry.
+     * Required Geometry.
+     * The member must exist. The value can be a Json Object or null.
      */
     private Geometry geometry = null;
     
     /**
-     * Properties.
+     * Required Properties.
+     * The member must exist. The value can be a Json Object or null     
      */
     private HashMap<String, Object> properties = new HashMap<>();
     
+    /**
+     * Creates a feature with {@link fr.cnes.geojson.AbstractGeoJsonUtility#options options}
+     * from GeoJsonWriter
+     * @param options      
+     */
     public Feature(final Map<String, Object> options) {
         this();
         this.setOptions(options);

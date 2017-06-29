@@ -224,13 +224,13 @@ public class GeoJsonWriterTest {
         feature.setCrs(crs);
         String expResult = "{\n"
                 + "  \"type\": \"Feature\",\n"
-                + "  \"id\": \"01\",\n"
                 + "  \"crs\": {\n"
                 + "    \"type\": \"name\",\n"
                 + "    \"properties\": {\n"
                 + "      \"urn\": \"urn:ogc:def:crs:OGC:1.3:CRS84\"\n"
                 + "    }\n"
                 + "  },\n"
+                + "  \"id\": \"01\",\n"
                 + "  \"geometry\": {\n"
                 + "    \"type\": \"Polygon\",\n"
                 + "    \"coordinates\": [\n"
@@ -270,14 +270,14 @@ public class GeoJsonWriterTest {
         String result = writer.toJson(feature);
         String expResult = "{\n"
                 + "  \"type\": \"Feature\",\n"
-                + "  \"geometry\": null,\n"
-                + "  \"properties\": null,\n"
                 + "  \"test\": [\n"
                 + "    2.0,\n"
                 + "    4.0,\n"
                 + "    null,\n"
                 + "    6.0\n"
-                + "  ]\n"
+                + "  ],\n"
+                + "  \"geometry\": null,\n"
+                + "  \"properties\": null\n"
                 + "}";
         assertEquals(expResult, result);
     }

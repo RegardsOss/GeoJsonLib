@@ -43,11 +43,12 @@ import java.util.logging.Logger;
  *
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
-public class GeoJsonParser {
+public class GeoJsonParser extends AbstractGeoJsonUtility {
     
     private static final Logger LOGGER = Logger.getLogger(GeoJsonParser.class.getName());
 
     public GeoJsonParser() {
+        super();
     }
 
     /**
@@ -68,13 +69,7 @@ public class GeoJsonParser {
      * @return Feature or FeatureCollection
      */
     public <T> T parse(final String geojson) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Geometry.class, new GeometrySerializer())
-                .registerTypeAdapter(Feature.class, new FeatureSerializer())
-                .registerTypeAdapter(FeatureCollection.class, new FeatureCollectionSerializer())
-                .serializeNulls()
-                .serializeSpecialFloatingPointValues()
-                .create();
+        Gson gson = this.getGsonBuilder().create();
         return gson.fromJson(geojson, isFeatureCollection(geojson) ? FeatureCollection.class : Feature.class);
     }
 

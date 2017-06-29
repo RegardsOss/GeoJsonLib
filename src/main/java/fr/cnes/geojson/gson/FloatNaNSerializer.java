@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Provides a serialization of Float.NaN or Float.Infinite.
+ * Implements a serialization of Float.NaN or Float.Infinite.
  * JSON standard does not allow the representation of NaN or Infinite. That's
  * why NaN or Infinite is replaced by <i>null</i>.
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)

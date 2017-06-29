@@ -17,7 +17,10 @@
  * along with Regards.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 /**
- * Provides the classes representing the GeoJson Objects :
+ * Provides the classes representing the GeoJson Objects.
+ * 
+ * Here is the different GeoJSON object as defined in the 
+ * <a href="https://tools.ietf.org/html/rfc7946#page-6">GeoJSON format</>.
  * <ul>
  * <li>{@link fr.cnes.geojson.object.GeoJsonObject} : abstract class</li>
  * <li>{@link fr.cnes.geojson.object.Geometry} : concrete Geometry class</li>

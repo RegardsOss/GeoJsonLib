@@ -18,19 +18,19 @@
  ******************************************************************************/
 package fr.cnes.geojson.gson;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import fr.cnes.geojson.crs.Crs;
 import fr.cnes.geojson.object.FeatureCollection;
+import fr.cnes.geojson.object.GeoJsonObject;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
- * Interface representing a custom serializer for FeatureCollection.
+ * Implements a serialization for FeatureCollection.
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class FeatureCollectionSerializer implements JsonSerializer<FeatureCollection> {
@@ -39,27 +39,30 @@ public class FeatureCollectionSerializer implements JsonSerializer<FeatureCollec
 
     @Override
     public JsonElement serialize(FeatureCollection featureCollection, Type type, JsonSerializationContext context) {
-        JsonObject object = new JsonObject();
-        object.addProperty("type", featureCollection.getType());
-
-
-        if (featureCollection.getBbox() != null) {
-            object.add("bbox", context.serialize(featureCollection.getBbox()));
-        }
-
-        if (featureCollection.getCrs() != null) {
-            object.add("crs", context.serialize(featureCollection.getCrs(), Crs.class));
-        }
-        
-        if(featureCollection.getFeatures() != null) {
-            object.add("features", context.serialize(featureCollection.getFeatures(), List.class));
-        }
-
-        Set<String> foreignMembers = featureCollection.getForeignMembers().keySet();
-        for (String name : foreignMembers) {
-            object.add(name, context.serialize(featureCollection.getForeignMembers().get(name)));
-        }
+        JsonObject object = (JsonObject) context.serialize(featureCollection, GeoJsonObject.class);        
+        addFeatures(featureCollection, object, context);
         return object;
     }
+    
+    /**
+     * Adds features to the JSON object. 
+     * When features is not defined then an empty json array is set in the JSON 
+     * object.
+     *
+     * @param featureCollection  FeatureCollection object
+     * @param object JSON object
+     * @param context context to serialize complex type
+     */
+    private void addFeatures(FeatureCollection featureCollection, JsonObject object, JsonSerializationContext context) {
+         JsonElement features;
+        if(featureCollection.getFeatures() != null) {
+            features = context.serialize(featureCollection.getFeatures(), List.class);
+        } else {
+            features = new JsonArray();
+        }       
+        object.add("features", features);
+    }
+    
+    
     
 }
