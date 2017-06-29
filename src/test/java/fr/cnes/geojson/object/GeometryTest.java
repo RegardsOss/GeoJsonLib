@@ -6,6 +6,7 @@
 package fr.cnes.geojson.object;
 
 import fr.cnes.geojson.geometry.Point;
+import java.util.HashMap;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -45,8 +46,8 @@ public class GeometryTest {
     public void testCreateGeometry() {
         System.out.println("createGeometry");
         Class clazz = null;
-        Geometry expResult = new Point();
-        Geometry<Point> result = Geometry.createGeometry(Point.class);
+        Geometry expResult = new Point(new HashMap<>());
+        Geometry<Point> result = Geometry.createGeometry(Point.class, new HashMap<>());
         assertEquals(expResult, result.getShape());
     }
 

@@ -57,7 +57,7 @@ public class FeatureTest {
     @Test
     public void testSetGeometry() {
         System.out.println("setGeometry");
-        Geometry geometry = new Point();
+        Point geometry = new Point(new HashMap<>());
         geometry.setCoordinates(new double[]{0,12});
         Feature instance = new Feature();
         instance.setGeometry(geometry);
@@ -122,7 +122,5 @@ public class FeatureTest {
         boolean result = instance.equals(obj);
         assertEquals(expResult, result);
     }
-
-
     
 }

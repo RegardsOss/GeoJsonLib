@@ -21,6 +21,7 @@ package fr.cnes.geojson.crs;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * The coordinate reference system (CRS) of a GeoJSON object is determined by
@@ -48,6 +49,8 @@ import java.util.Objects;
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class Crs {
+    
+    private static final Logger LOGGER = Logger.getLogger(Crs.class.getName());    
 
     /**
      * CRS type.

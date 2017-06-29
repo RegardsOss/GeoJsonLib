@@ -18,11 +18,13 @@
  ******************************************************************************/
 package fr.cnes.geojson.object;
 
+import fr.cnes.geojson.WriterOptions;
 import fr.cnes.geojson.crs.Crs;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * A GeoJSON object represents a Geometry, Feature, or collection of
@@ -38,12 +40,15 @@ import java.util.Objects;
  * </ul>
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
-public abstract class GeoJsonObject {
+public abstract class GeoJsonObject implements WriterOptions {
+    
+    private static final Logger LOGGER = Logger.getLogger(GeoJsonObject.class.getName());    
     
     private String type;
     private Crs crs = null;
     private double[] bbox = null;
-    public Map<String, Object> foreignMembers = new HashMap<>();
+    private Map<String, Object> foreignMembers = new HashMap<>();
+    private final Map<String, Object> options = new HashMap<>();
     
     /**
      * Creates a empty GeoJson object.
@@ -52,6 +57,18 @@ public abstract class GeoJsonObject {
     protected GeoJsonObject(String type) {
         this.type = type;
     }
+    
+
+    @Override
+    public final void setOptions(final Map<String, Object> options) {
+        this.options.clear();
+        this.options.putAll(options);
+    }
+
+    @Override
+    public final Map<String, Object> getOptions() {
+        return this.options;
+    }    
 
     /**
      * @return the type
@@ -161,7 +178,5 @@ public abstract class GeoJsonObject {
         hash = 97 * hash + Objects.hashCode(this.foreignMembers);
         return hash;
     }    
-    
-    
-    
+          
 }

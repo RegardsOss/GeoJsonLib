@@ -75,6 +75,6 @@ public class FeatureCollectionTest {
         boolean expResult = true;
         boolean result = instance.equals(obj);
         assertEquals(expResult, result);
-    }
+    }    
     
 }

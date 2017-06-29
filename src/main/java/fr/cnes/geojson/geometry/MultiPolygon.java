@@ -18,9 +18,12 @@
  ******************************************************************************/
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.GeoJsonWriter;
 import static fr.cnes.geojson.Utils.EPSILON;
 import fr.cnes.geojson.object.Geometry;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a multi polygons.
@@ -29,36 +32,131 @@ import java.util.Arrays;
 public class MultiPolygon extends Geometry {
 
     private static final String MULTI_POLYGON = "MultiPolygon";
+    private static final Logger LOGGER = Logger.getLogger(MultiPolygon.class.getName());
+    
+    /**
+     * Creates a MultiPolygon based on the GeoJsonWriter options.
+     * @param options the options
+     */
+    public MultiPolygon(final Map<String, Object> options) {
+        this();
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor", options);
+        this.setOptions(options);
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");        
+    }
 
-    public MultiPolygon() {
+    /**
+     * Creates an empty MultiPolygon.
+     */
+    protected MultiPolygon() {
         super(MULTI_POLYGON);
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor");
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");        
     }
+    
+    /**
+     * Creates a MultiPolygon based on coordinates and GeoJsonWriter options
+     * @param points the coordinates
+     * @param options the options
+     */
+    public MultiPolygon(double[][][][] points, final Map<String, Object> options) {
+        this(points);
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor", new Object[]{points, options});        
+        this.setOptions(options);
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");        
+    }    
 
-    public MultiPolygon(double[][][][] points) {
+    /**
+     * Creates a MultiPolygon based on coordinates.
+     * @param points the coordinates
+     */
+    protected MultiPolygon(double[][][][] points) {
         this();
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor", points);                
         setPoints(points);
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");                
     }
+    
+    /**
+     * Creates a MultiPolygon based on a set of polygons and GeoJsonWriter options.
+     * @param polygons the polygons
+     * @param options the options
+     */
+    public MultiPolygon(final Polygon[] polygons, final Map<String, Object> options) {
+        this(polygons);
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor", new Object[]{polygons, options});                        
+        this.setOptions(options);
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");                        
+    }     
 
-    public MultiPolygon(Polygon[] polygons) {
+    /**
+     * Creates a MultiPolygon based on a set of polygons.
+     * @param polygons polygons
+     */
+    protected MultiPolygon(final Polygon[] polygons) {
         this();
+        LOGGER.entering(MultiPolygon.class.getName(), "Constructor", polygons);                        
         setPoints(polygons);
+        LOGGER.exiting(MultiPolygon.class.getName(), "Constructor");                        
     }
 
+    /**
+     * Sets the number of points.
+     * @param points points
+     */
     public final void setPoints(double[][][][] points) {
+        LOGGER.entering(MultiPolygon.class.getName(), "setPoints", points);                        
+        fixLongitude(points);
         this.coordinates = points;
+        LOGGER.exiting(MultiPolygon.class.getName(), "setPoints");                        
     }
 
-    public final void setPoints(Polygon[] polygons) {
+    /**
+     * Sets the numner of points based on an array of polygons.
+     * @param polygons polygons
+     */
+    public final void setPoints(final Polygon[] polygons) {
+        LOGGER.entering(MultiPolygon.class.getName(), "setPoints", polygons);                        
         double[][][][] points = new double[polygons.length][][][];
         int indexPolygon = 0;
         for (Polygon polygon : polygons) {
             points[indexPolygon] = polygon.toDouble3DArray();
             indexPolygon++;
         }
-        this.coordinates = points;
+        setPoints(points);
+        LOGGER.exiting(MultiPolygon.class.getName(), "setPoints");                        
     }
+    
+    /**
+     * Fix longitude of multi polygons
+     * @param multiPolygons multi polygons
+     */
+    private void fixLongitude(double[][][][] multiPolygons) {
+        LOGGER.entering(MultiPolygon.class.getName(), "fixLongitude", multiPolygons);                        
+        if (this.getOptions().containsKey(GeoJsonWriter.FIX_LONGITUDE)
+                && (boolean) this.getOptions().get(GeoJsonWriter.FIX_LONGITUDE)) {
+            LOGGER.fine("Fix longitude is being processed");
+            for (double[][][] polygon : multiPolygons) {
+                for (double[][] line : polygon) {
+                    for (double[] coordinate : line) {
+                        if (coordinate[0] > 180.0) {
+                            coordinate[0] -= 360.0;
+                        }
+                    }                
+                }              
+            }
+        }
+        LOGGER.exiting(MultiPolygon.class.getName(), "fixLongitude");                                
+    }      
 
+    /**
+     * Returns points
+     * @param <T> type
+     * @param type class to cast the points
+     * @return an array of double of several dimensions.
+     */
     public <T> T getPoints(Class<T> type) {
+        LOGGER.entering(MultiPolygon.class.getName(), "getPoints", type);                                
         T result;
         switch (type.getSimpleName()) {
             case "double[][][][]":
@@ -68,10 +166,24 @@ public class MultiPolygon extends Geometry {
                 result = (T) toPolygonArray();
                 break;
             default:
+                LOGGER.severe(String.format("%s is not allowed", type.getTypeName()));
                 throw new IllegalArgumentException(type.getTypeName() + " is not allowed");
         }
+        LOGGER.exiting(MultiPolygon.class.getName(), "getPoints", result);                                
         return result;
     }
+    
+    @Override
+    public void setCoordinates(Object coordinates) {
+        if(coordinates instanceof Polygon[]) {
+            setPoints((Polygon[]) coordinates);
+        } else if(coordinates instanceof double[][][][]) {
+            setPoints((double[][][][]) coordinates);            
+        } else {
+           LOGGER.severe("Coordinates type not supported");            
+           throw new IllegalArgumentException("Coordinates type not supported");
+        }
+    }    
 
     @Override
     public double[][][][] getCoordinates() {
@@ -135,12 +247,8 @@ public class MultiPolygon extends Geometry {
     }
 
     @Override
-    public void setCoordinates(Object coordinates) {
-        setPoints((double[][][][]) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
+        LOGGER.entering(MultiPolygon.class.getName(), "computeBbox");                                        
         double[][][][] multiPolys = (double[][][][]) this.coordinates;
         int nbMultiPolys = multiPolys.length;
         double minLongValue = Double.MAX_VALUE;
@@ -174,15 +282,20 @@ public class MultiPolygon extends Geometry {
             } else {
                 minLatValue = -90;
             }
-        }        
-        this.setBbox(maxAltValue != Double.MIN_VALUE 
+        }      
+        double[] bbox = maxAltValue != Double.MIN_VALUE 
                 ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
-                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue});          
+                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue};
+        LOGGER.exiting(MultiPolygon.class.getName(), "computeBbox", bbox);                                              
+        this.setBbox(bbox);          
     }
 
     @Override
     public int length() {
+        LOGGER.entering(MultiPolygon.class.getName(), "length");                                        
         double[][][][] points = toDouble4DArray();
-        return points == null ? 0 : points.length;
+        int length = (points == null) ? 0 : points.length;
+        LOGGER.exiting(MultiPolygon.class.getName(), "length", length);                                                
+        return length;
     }
 }

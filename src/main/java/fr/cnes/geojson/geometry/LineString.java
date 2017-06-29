@@ -18,9 +18,13 @@
  ******************************************************************************/
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.GeoJsonWriter;
+import fr.cnes.geojson.Utils;
 import static fr.cnes.geojson.Utils.EPSILON;
 import fr.cnes.geojson.object.Geometry;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a planetographic line string.
@@ -29,30 +33,72 @@ import java.util.Arrays;
 public final class LineString extends Geometry {
 
     private static final String LINE_STRING = "LineString";
+    private static final Logger LOGGER = Logger.getLogger(LineString.class.getName());
+    
+    /**
+     * Creates a LineString based on GeoJsonWriter options.
+     * @param options the options.
+     */
+    public LineString(final Map<String, Object> options) {        
+        this();
+        LOGGER.entering(LineString.class.getName(), "Constructor", options);        
+        this.setOptions(options);
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
+    }
 
     /**
      * Creates an empty LineString.
      */
-    public LineString() {
+    protected LineString() {
         super(LINE_STRING);
+        LOGGER.entering(LineString.class.getName(), "Constructor");        
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
     }
+    
+    /**
+     * Creates a LineString based on a set of points.
+     * @param points a set of points
+     * @param options
+     */
+    public LineString(double[][] points, final Map<String, Object> options) {
+        this(points);
+        LOGGER.entering(LineString.class.getName(), "Constructor", options);                
+        this.setOptions(options);
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
+    }    
 
     /**
      * Creates a LineString based on a set of points.
      * @param points a set of points
      */
-    public LineString(double[][] points) {
+    protected LineString(double[][] points) {
         this();
-        this.coordinates = points;
+        LOGGER.entering(LineString.class.getName(), "Constructor", points);                
+        setPoints(points);
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
     }
+    
+    /**
+     * Creates a LineString based on a set of Position.
+     * @param points position
+     * @param options
+     */
+    public LineString(final Position[] points, final Map<String, Object> options) {        
+        this(points);
+        LOGGER.entering(LineString.class.getName(), "Constructor", new Object[]{points, options});                
+        this.setOptions(options);
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
+    }    
 
     /**
      * Creates a LineString based on a set of Position.
      * @param points position
      */
-    public LineString(final Position[] points) {
+    protected LineString(final Position[] points) {
         this();
+        LOGGER.entering(LineString.class.getName(), "Constructor", points);                
         setPoints(points);
+        LOGGER.exiting(LineString.class.getName(), "Constructor");                
     }
 
     /**
@@ -60,7 +106,11 @@ public final class LineString extends Geometry {
      * @param points the points
      */
     public void setPoints(double[][] points) {
-        this.coordinates = points;
+        LOGGER.entering(LineString.class.getName(), "setPoints", points);                
+        Utils.checkNotNull(points);
+        fixLongitude(points);
+        this.coordinates = points;        
+        LOGGER.exiting(LineString.class.getName(), "setPoints");                
     }
 
     /**
@@ -68,13 +118,15 @@ public final class LineString extends Geometry {
      * @param points the points
      */
     public void setPoints(final Position[] points) {
+        LOGGER.entering(LineString.class.getName(), "setPoints", points);                        
         double[][] coord = new double[points.length][];
         int row = 0;
         for (Position point : points) {
             coord[row] = point.toArray();
             row++;
         }
-        this.coordinates = coord;
+        setPoints(coord);
+        LOGGER.exiting(LineString.class.getName(), "setPoints");                        
     }
 
     /**
@@ -84,6 +136,7 @@ public final class LineString extends Geometry {
      * @return the points in the casted class.
      */
     public <T> T getPoints(final Class<T> type) {
+        LOGGER.entering(LineString.class.getName(), "getPoints", type);                        
         T result;
         switch (type.getSimpleName()) {
             case "double[][]":
@@ -95,13 +148,45 @@ public final class LineString extends Geometry {
             default:
                 throw new IllegalArgumentException(type.getTypeName() + " is not allowed");
         }
+        LOGGER.exiting(LineString.class.getName(), "getPoints", result);                        
         return result;
     }
+    
+    @Override
+    public void setCoordinates(Object coordinates) {
+        LOGGER.entering(LineString.class.getName(), "setCoordinates");                        
+        if( coordinates instanceof Position[]) {
+            setPoints((Position[]) coordinates);
+        } else if (coordinates instanceof double[][]) {
+            setPoints((double[][]) coordinates);
+        } else {
+            LOGGER.severe("coordinates type not supported");
+            throw new IllegalArgumentException("coordinates type not supported");
+        }        
+        LOGGER.exiting(LineString.class.getName(), "setCoordinates");                        
+    }    
 
     @Override
     public double[][] getCoordinates() {
-        return getPoints(double[][].class);
+        LOGGER.entering(LineString.class.getName(), "getCoordinates");                                
+        double[][] points = getPoints(double[][].class);
+        LOGGER.exiting(LineString.class.getName(), "getCoordinates", points);                        
+        return points;
     }
+    
+    private void fixLongitude(double[][] coordinates) {
+        LOGGER.entering(LineString.class.getName(), "fixLongitude", coordinates);                                
+        if (this.getOptions().containsKey(GeoJsonWriter.FIX_LONGITUDE) 
+                && (boolean) this.getOptions().get(GeoJsonWriter.FIX_LONGITUDE)) {
+            LOGGER.fine("longitude is being fixed");                                    
+            for (double[] coordinate : coordinates) {
+                if (coordinate[0] > 180.0) {
+                    coordinate[0] -= 360.0;
+                }
+            }
+        }
+        LOGGER.exiting(LineString.class.getName(), "fixlongitude");                                
+    }    
 
     /**
      * Casts to 2D double array.
@@ -177,12 +262,8 @@ public final class LineString extends Geometry {
     }
 
     @Override
-    public void setCoordinates(Object coordinates) {
-        setPoints((double[][]) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
+        LOGGER.entering(LineString.class.getName(), "computeBbox");                                
         double[][] points = toDouble2DArray();
         int nbPoints = points.length;
         double minLongValue = Double.MAX_VALUE;
@@ -210,16 +291,20 @@ public final class LineString extends Geometry {
                 minLatValue = -90;
             }
         }        
-        this.setBbox(maxAltValue != Double.MIN_VALUE 
-                ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
-                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue});
-        
+        double[] bbox = maxAltValue != Double.MIN_VALUE 
+                ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue} 
+                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue}; 
+        LOGGER.exiting(LineString.class.getName(), "computeBbox", bbox);                                        
+        this.setBbox(bbox);        
     }
 
     @Override
     public int length() {
+        LOGGER.entering(LineString.class.getName(), "length");                                        
         double[][] points = toDouble2DArray();
-        return points == null ? 0 : points.length;
+        int length = (points == null) ? 0 : points.length;
+        LOGGER.exiting(LineString.class.getName(), "computeBbox", length);                                        
+        return length;
     }
 
 }

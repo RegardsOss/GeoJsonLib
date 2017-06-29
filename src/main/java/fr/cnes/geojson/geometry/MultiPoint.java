@@ -18,10 +18,13 @@
  ******************************************************************************/
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.GeoJsonWriter;
 import fr.cnes.geojson.Utils;
 import static fr.cnes.geojson.Utils.EPSILON;
 import fr.cnes.geojson.object.Geometry;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a planetographic multi points.
@@ -31,32 +34,67 @@ import java.util.Arrays;
 public final class MultiPoint extends Geometry {
 
     private static final String MULTI_POINT = "MultiPoint";
-
+    private static final Logger LOGGER = Logger.getLogger(MultiPoint.class.getName());
+    
+    /**
+     * Creates MultiPoint based on GeoJsonWriter options.
+     * @param options the options
+     */
+    public MultiPoint(final Map<String,Object> options) {
+        this();
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor", options);                                                                
+        this.setOptions(options);
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
+    }
+    
     /**
      * Creates an empty MultiPoint.
      */
-    public MultiPoint() {
+    protected MultiPoint() {
         super(MULTI_POINT);
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor");                                                                
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
     }
+    
+    public MultiPoint(double[][] points, final Map<String,Object> options) {
+        this(points);
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor", options);                                                                        
+        this.setOptions(options);
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
+    }    
 
     /**
-     * Creates a MultiPoint based on a set of points.
-     *
+     * Creates a MultiPoint based on a set of points.     
      * @param points set of points
      */
-    public MultiPoint(double[][] points) {
+    protected MultiPoint(double[][] points) {
         this();
-        this.coordinates = points;
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor", points);                                                                        
+        setPoints(points);
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
     }
+    
+    /**
+     * Creates a MultiPoint based on a set of position and GeoJsonWriter options.
+     * @param points positions
+     * @param options GeoJsonWriter options
+     */
+    public MultiPoint(final Position[] points, final Map<String,Object> options) {
+        this(points);
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor", new Object[]{points, options});                                                                        
+        this.setOptions(options);
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
+    }    
 
     /**
-     * Creates a MultiPoint based on a set of Position.
-     *
+     * Creates a MultiPoint based on a set of Position.     
      * @param points set of Position
      */
-    public MultiPoint(final Position[] points) {
+    protected MultiPoint(final Position[] points) {
         this();
+        LOGGER.entering(MultiPoint.class.getName(), "Constructor", points);                                                                        
         setPoints(points);
+        LOGGER.exiting(MultiPoint.class.getName(), "Constructor");                                                                        
     }
 
     /**
@@ -65,16 +103,33 @@ public final class MultiPoint extends Geometry {
      * @param points the points as a 2D double array
      */
     public void setPoints(double[][] points) {
+        LOGGER.entering(MultiPoint.class.getName(), "setPoints", points);                                                                        
         Utils.checkNotNull(points);
+        fixLongitude(points);
         this.coordinates = points;
+        LOGGER.exiting(MultiPoint.class.getName(), "setPoints");                                                                        
     }
+    
+    private void fixLongitude(double[][] coordinates) {
+        LOGGER.entering(MultiPoint.class.getName(), "fixLongitude", coordinates);                                                                        
+        if (this.getOptions().containsKey(GeoJsonWriter.FIX_LONGITUDE)
+                && (boolean) this.getOptions().get(GeoJsonWriter.FIX_LONGITUDE)) {
+            LOGGER.fine("Fix longitude is beeing processed");
+            for (double[] coordinate : coordinates) {
+                if (coordinate[0] > 180.0) {
+                    coordinate[0] -= 360.0;
+                }
+            }
+        }
+        LOGGER.exiting(MultiPoint.class.getName(), "fixLongitude");                                                                        
+    }    
 
     /**
-     * Sets the points
-     *
+     * Sets the points     
      * @param points the points as a Position array
      */
     public void setPoints(final Position[] points) {
+        LOGGER.entering(MultiPoint.class.getName(), "setPoints", points);                                                                                
         Utils.checkNotNull(points);
         int nbPoints = points.length;
         double[][] coord = new double[nbPoints][];
@@ -83,7 +138,8 @@ public final class MultiPoint extends Geometry {
             coord[currentIndexPoint] = point.toArray();
             currentIndexPoint++;
         }
-        this.coordinates = coord;
+        setPoints(coord);
+        LOGGER.exiting(MultiPoint.class.getName(), "setPoints");                                                                                
     }
 
     /**
@@ -94,6 +150,7 @@ public final class MultiPoint extends Geometry {
      * @return the points
      */
     public <T> T getPoints(Class<T> type) {
+        LOGGER.entering(MultiPoint.class.getName(), "setPoints", type);                                                                                
         T result;
         switch (type.getSimpleName()) {
             case "double[][]":
@@ -105,8 +162,24 @@ public final class MultiPoint extends Geometry {
             default:
                 throw new IllegalArgumentException(type.getTypeName() + " is not allowed");
         }
+        LOGGER.exiting(MultiPoint.class.getName(), "setPoints", result);                                                                                
         return result;
     }
+    
+    @Override
+    public void setCoordinates(Object coordinates) {
+        LOGGER.entering(MultiPoint.class.getName(), "setCoordinates");                                                                                
+        if(coordinates instanceof Position[]) {
+            setPoints((Position[]) coordinates);            
+        } else if(coordinates instanceof double[][]) {
+            setPoints((double[][]) coordinates);
+        } else {
+            LOGGER.severe("Coordinates type not supported");                                                                                            
+            throw new IllegalArgumentException("Coordinates type not supported");
+        }
+        LOGGER.exiting(MultiPoint.class.getName(), "setCoordinates");                                                                                        
+    }
+    
 
     @Override
     public double[][] getCoordinates() {
@@ -170,12 +243,8 @@ public final class MultiPoint extends Geometry {
     }
 
     @Override
-    public void setCoordinates(Object coordinates) {
-        setPoints((double[][]) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
+        LOGGER.entering(MultiPoint.class.getName(), "computeBbox");                                                                                                
         double[][] points = ((double[][]) this.coordinates);
         int nbPoints = points.length;
         double minLongValue = Double.MAX_VALUE;
@@ -202,15 +271,20 @@ public final class MultiPoint extends Geometry {
                 minLatValue = -90;
             }
         }
-        this.setBbox(maxAltValue != Double.MIN_VALUE
+        double[] bbox = maxAltValue != Double.MIN_VALUE
                 ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
-                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue});
+                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue};
+        LOGGER.exiting(MultiPoint.class.getName(), "computeBbox", bbox);                                                                                                
+        this.setBbox(bbox);
     }
 
     @Override
     public int length() {
+        LOGGER.entering(MultiPoint.class.getName(), "length");                                                                                                                
         double[][] points = toDouble2DArray();
-        return points == null ? 0 : points.length;
+        int length = (points == null) ? 0 : points.length;
+        LOGGER.exiting(MultiPoint.class.getName(), "length", length); 
+        return length;
     }
 
 }

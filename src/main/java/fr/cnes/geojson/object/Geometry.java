@@ -18,6 +18,8 @@
  ******************************************************************************/
 package fr.cnes.geojson.object;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,6 +44,8 @@ import java.util.logging.Logger;
  */
 public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
     
+    private static final Logger LOGGER = Logger.getLogger(Geometry.class.getName());    
+    
     /**
      * coordinates of the geometry.
      */
@@ -51,23 +55,26 @@ public abstract class Geometry<T extends Geometry> extends GeoJsonObject{
      * Empty geometry.
      * @param type geometry type
      */
-    public Geometry(final String type) {
+    protected Geometry(final String type) {
         super(type);
     }    
     
     /**
      * Creates an empty geometry.
-     * @param <T> Geometry
+     * @param <T>
      * @param clazz Class to create
+     * @param options
      * @return the geometry
      */
-    public static <T extends Geometry> T createGeometry(final Class clazz) {
+    public static <T extends Geometry> T createGeometry(final Class<? extends Geometry> clazz, Map<String, Object> options) {
+        T geom;
         try {
-            return (T) clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            geom = (T) clazz.getConstructor(Map.class).newInstance(options);
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(Geometry.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
+            geom = null;
         }
+        return geom;
     } 
 
     /**

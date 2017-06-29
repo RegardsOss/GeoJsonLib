@@ -18,10 +18,13 @@
  ******************************************************************************/
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.GeoJsonWriter;
 import fr.cnes.geojson.Utils;
 import static fr.cnes.geojson.Utils.EPSILON;
 import fr.cnes.geojson.object.Geometry;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a planetographic multi line string.
@@ -30,12 +33,26 @@ import java.util.Arrays;
 public class MultiLineString extends Geometry{
     
     private static final String MULTI_LINE_STRING = "MultiLineString";
+    private static final Logger LOGGER = Logger.getLogger(MultiLineString.class.getName());
         
+    /**
+     * Creates a MutiLineString based on GeoJsonWriter options.
+     * @param options the options
+     */
+    public MultiLineString(final Map<String, Object> options) {
+        this();
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", options);        
+        this.setOptions(options);
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
+    }
+    
     /**
      * Creates an empty MultiLineString.
      */
-    public MultiLineString() {
+    protected MultiLineString() {
         super(MULTI_LINE_STRING);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor");        
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
     }
     
     /**
@@ -44,15 +61,31 @@ public class MultiLineString extends Geometry{
      */
     protected MultiLineString(final String type) {
         super(type);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", type);        
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
     }
+    
+    /**
+     * Creates a MultiLineString based on coordinates and GeoJsonWriter options
+     * @param points coordinates
+     * @param options GeoJsonWriter options
+     */
+    public MultiLineString(double[][][] points, final Map<String, Object> options) {
+        this(points);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", options);                
+        this.setOptions(options);
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
+    }    
     
     /**
      * Creates a MultiLineString based on a set of points.
      * @param points set of points
      */
-    public MultiLineString(double[][][] points) {
+    protected MultiLineString(double[][][] points) {
         this();
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", points);                
         setPoints(points);
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
     }        
     
     /**
@@ -62,16 +95,32 @@ public class MultiLineString extends Geometry{
      */
     protected MultiLineString(final String type, double[][][] points) {
         this(type);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", new Object[]{type, points});                
         setPoints(points);
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
     }     
+    
+    /**
+     * Creates a MultiLineString based on a set of LineString and GeoJsonWriter options
+     * @param lineStrings
+     * @param options 
+     */
+    public MultiLineString(final LineString[] lineStrings, final Map<String, Object> options) {
+        this(lineStrings);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", new Object[]{lineStrings,options});                
+        this.setOptions(options);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor");                
+    }
     
     /**
      * Creates a MultiLineString based on a set of LineString.
      * @param lineStrings set of LineString
      */
-    public MultiLineString(final LineString[] lineStrings) {
+    protected MultiLineString(final LineString[] lineStrings) {
         this();
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", lineStrings);                
         setPoints(lineStrings);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor");                
     } 
     
     /**
@@ -81,7 +130,9 @@ public class MultiLineString extends Geometry{
      */
     protected MultiLineString(final String type, final LineString[] lineStrings) {
         this(type);
+        LOGGER.entering(MultiLineString.class.getName(), "Constructor", new Object[]{type, lineStrings});                
         setPoints(lineStrings);
+        LOGGER.exiting(MultiLineString.class.getName(), "Constructor");                
     }      
     
     /**
@@ -90,8 +141,11 @@ public class MultiLineString extends Geometry{
      * @throws IllegalArgumentException Will throw an exception when the object is null
      */
     public void setPoints(double[][][] points) {
+        LOGGER.entering(MultiLineString.class.getName(), "setPoints", points);                
         Utils.checkNotNull(points);
+        fixLongitude(points);
         this.coordinates = points;
+        LOGGER.exiting(MultiLineString.class.getName(), "setPoints");                
     }
     
     /**
@@ -100,6 +154,7 @@ public class MultiLineString extends Geometry{
      * @throws IllegalArgumentException Will throw an exception when the object is null     
      */
     public void setPoints(final LineString[] lineStrings) {        
+        LOGGER.entering(MultiLineString.class.getName(), "setPoints", lineStrings);                
         Utils.checkNotNull(lineStrings);
         double[][][] points = new double[lineStrings.length][][];        
         int indexLineString=0;
@@ -107,7 +162,8 @@ public class MultiLineString extends Geometry{
             points[indexLineString] = lineString.toDouble2DArray();
             indexLineString++;
         }       
-        this.coordinates = points;
+        setPoints(points);
+        LOGGER.entering(MultiLineString.class.getName(), "setPoints");                
     }    
     
     /**
@@ -117,6 +173,7 @@ public class MultiLineString extends Geometry{
      * @return the points as a double[][][] or LineString[]
      */
     public <T> T getPoints(Class<T> type) {
+        LOGGER.entering(MultiLineString.class.getName(), "getPoints", type);                
         T result;
         switch(type.getSimpleName()) {
             case "double[][][]" :
@@ -128,12 +185,49 @@ public class MultiLineString extends Geometry{
             default:
                 throw new IllegalArgumentException(type.getTypeName()+" is not allowed");               
         }
+        LOGGER.exiting(MultiLineString.class.getName(), "getPoints", result);                
         return result;
     }
     
+    /**
+     * Fix the longitudes.
+     * @param multiLines multi lines
+     */
+    private void fixLongitude(double[][][] multiLines) {
+        LOGGER.entering(MultiLineString.class.getName(), "fixLongitude", multiLines);                
+        if (this.getOptions().containsKey(GeoJsonWriter.FIX_LONGITUDE)
+                && (boolean) this.getOptions().get(GeoJsonWriter.FIX_LONGITUDE)) {
+            for (double[][] line : multiLines) {
+                for (double[] coordinate : line) {
+                    if (coordinate[0] > 180.0) {
+                        coordinate[0] -= 360.0;
+                    }
+                }                
+            }
+        }
+        LOGGER.exiting(MultiLineString.class.getName(), "fixLongitude");                
+    }
+
+    @Override
+    public void setCoordinates(Object coordinates) {
+        LOGGER.entering(MultiLineString.class.getName(), "setCoordinates");                        
+        if(coordinates instanceof LineString[]) {
+            setPoints((LineString[]) coordinates);            
+        } else if (coordinates instanceof double[][][]) {
+            setPoints((double[][][]) coordinates);    
+        } else {
+            LOGGER.severe("Coordinates type not supported");
+            throw new IllegalArgumentException("Coordinates type not supported");
+        }
+        LOGGER.exiting(MultiLineString.class.getName(), "setCoordinates");                        
+    }    
+    
     @Override
     public double[][][] getCoordinates() {
-        return getPoints(double[][][].class);
+        LOGGER.entering(MultiLineString.class.getName(), "getCoordinates");                
+        double[][][] points = getPoints(double[][][].class);
+        LOGGER.exiting(MultiLineString.class.getName(), "getCoordinates", points);                        
+        return points;
     }
     
     /**
@@ -201,12 +295,8 @@ public class MultiLineString extends Geometry{
     }
 
     @Override
-    public void setCoordinates(Object coordinates) {
-        setPoints((double[][][]) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
+        LOGGER.entering(MultiLineString.class.getName(), "computeBbox");                                
         double[][][] lineStrings = toDouble3DArray();
         int nbLineStrings = lineStrings.length;
         double minLongValue = Double.MAX_VALUE;
@@ -241,15 +331,20 @@ public class MultiLineString extends Geometry{
                 minLatValue = -90;
             }
         }        
-        this.setBbox(maxAltValue != Double.MIN_VALUE 
+        double[] bbox = maxAltValue != Double.MIN_VALUE 
                 ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
-                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue});        
+                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue};
+        LOGGER.exiting(MultiLineString.class.getName(), "computeBbox", bbox);                                                
+        this.setBbox(bbox);        
     }
 
     @Override
     public int length() {
+        LOGGER.entering(MultiLineString.class.getName(), "length");                                                        
         double[][][] points = toDouble3DArray();
-        return points == null ? 0 : points.length;
+        int length = (points == null) ? 0 : points.length;
+        LOGGER.exiting(MultiLineString.class.getName(), "length", length);                                                                
+        return length;
     }
     
 }

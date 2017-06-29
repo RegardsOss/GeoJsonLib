@@ -6,7 +6,6 @@
 package fr.cnes.geojson.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -103,9 +102,8 @@ public class PolygonTest {
             lineString1,lineString2,lineString3,lineString4
         };
         List interiorRings = new ArrayList();
-        boolean fixOrder = false;
         Polygon instance = new Polygon();
-        instance.setPoints(exteriorRing, interiorRings, fixOrder);
+        instance.setPoints(exteriorRing, interiorRings);
     }
 
 }

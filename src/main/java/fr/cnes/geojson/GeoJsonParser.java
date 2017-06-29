@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Regards.  If not, see <http://www.gnu.org/licenses/>.
- *****************************************************************************
+ * ****************************************************************************
  */
 package fr.cnes.geojson;
 
@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.logging.Logger;
 
 /**
  * Creates a GeoJSON parser.
@@ -43,6 +44,11 @@ import java.net.URL;
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class GeoJsonParser {
+    
+    private static final Logger LOGGER = Logger.getLogger(GeoJsonParser.class.getName());
+
+    public GeoJsonParser() {
+    }
 
     /**
      * Tests whether the GeoJSON is a FeatureCollection.
@@ -61,12 +67,11 @@ public class GeoJsonParser {
      * @param geojson GeoJSON
      * @return Feature or FeatureCollection
      */
-    public static <T> T parse(final String geojson) {
+    public <T> T parse(final String geojson) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Geometry.class, new GeometrySerializer())
                 .registerTypeAdapter(Feature.class, new FeatureSerializer())
                 .registerTypeAdapter(FeatureCollection.class, new FeatureCollectionSerializer())
-                .setPrettyPrinting()
                 .serializeNulls()
                 .serializeSpecialFloatingPointValues()
                 .create();
@@ -75,37 +80,44 @@ public class GeoJsonParser {
 
     /**
      * Parses a GeoJSON and returns a Feature or FeatureCollection.
+     *
      * @param <T> Feature or FeatureCollection
      * @param url URL of the GeoJSON file
      * @return Feature or FeatureCollection
-     * @throws IOException Will throw an error when the content cannot be retrieved
+     * @throws IOException Will throw an error when the content cannot be
+     * retrieved
      */
-    public static <T> T parse(final URL url) throws IOException {
+    public <T> T parse(final URL url) throws IOException {
         InputStream is = url.openConnection().getInputStream();
         return parse(is);
     }
 
     /**
      * Parses a GeoJSON and returns a Feature or FeatureCollection.
+     *
      * @param <T> Feature or FeatureCollection
      * @param file GeoJSON file
      * @return Feature or FeatureCollection
-     * @throws java.io.FileNotFoundException Will throw an error when the file cannot be found
-     * @throws IOException Will throw an error when the content cannot be retrieved
-     */    
-    public static <T> T parse(final File file) throws FileNotFoundException, IOException {
+     * @throws java.io.FileNotFoundException Will throw an error when the file
+     * cannot be found
+     * @throws IOException Will throw an error when the content cannot be
+     * retrieved
+     */
+    public <T> T parse(final File file) throws FileNotFoundException, IOException {
         FileInputStream fis = new FileInputStream(file);
         return parse(fis);
     }
 
     /**
      * Parses a GeoJSON and returns a Feature or FeatureCollection.
+     *
      * @param <T> Feature or FeatureCollection
      * @param reader Buffer on the content of the GeoJSON file
      * @return Feature or FeatureCollection
-     * @throws IOException Will throw an error when the content cannot be retrieved
-     */    
-    public static <T> T parse(final BufferedReader reader) throws IOException {
+     * @throws IOException Will throw an error when the content cannot be
+     * retrieved
+     */
+    public <T> T parse(final BufferedReader reader) throws IOException {
         StringBuilder geojson = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
@@ -117,12 +129,14 @@ public class GeoJsonParser {
 
     /**
      * Parses a GeoJSON and returns a Feature or FeatureCollection.
+     *
      * @param <T> Feature or FeatureCollection
      * @param is InputStream of the GeoJSON file
      * @return Feature or FeatureCollection
-     * @throws IOException Will throw an error when the content cannot be retrieved
-     */    
-    public static <T> T parse(final InputStream is) throws IOException {
+     * @throws IOException Will throw an error when the content cannot be
+     * retrieved
+     */
+    public <T> T parse(final InputStream is) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         return parse(reader);
     }

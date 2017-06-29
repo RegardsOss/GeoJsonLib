@@ -25,7 +25,7 @@ package fr.cnes.geojson;
 public class Utils {
 
     /**
-     * Double precision.
+     * Double precision {@value}.
      */
     public final static double EPSILON = 0.0000001;
 

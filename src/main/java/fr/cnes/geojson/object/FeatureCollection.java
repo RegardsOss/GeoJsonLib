@@ -20,7 +20,9 @@ package fr.cnes.geojson.object;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * A GeoJSON object with the type "FeatureCollection" is a FeatureCollection 
@@ -33,13 +35,19 @@ import java.util.Objects;
 public class FeatureCollection extends GeoJsonObject {
 
     public static final String TYPE = "FeatureCollection";
-
+    private static final Logger LOGGER = Logger.getLogger(FeatureCollection.class.getName());    
+    
     public List<Feature> features = new ArrayList<>();
+    
+    public FeatureCollection(final Map<String, Object> options) {
+        this();
+        this.setOptions(options);
+    }    
 
     /**
      * Creates an empty FeatureCollection.
      */
-    public FeatureCollection() {
+    protected FeatureCollection() {
         super(TYPE);
     }
 

@@ -19,6 +19,7 @@
 package fr.cnes.geojson.geometry;
 
 import fr.cnes.geojson.Utils;
+import java.util.logging.Logger;
 
 /**
  * A position is an array of numbers. There MUST be two or three elements. The
@@ -30,6 +31,8 @@ import fr.cnes.geojson.Utils;
  */
 public class Position {
 
+    private static final Logger LOGGER = Logger.getLogger(Position.class.getName());
+    
     private final double longitude;
     private final double latitude;
     private final double altitude;

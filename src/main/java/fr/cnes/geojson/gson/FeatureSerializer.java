@@ -28,13 +28,16 @@ import fr.cnes.geojson.object.Feature;
 import fr.cnes.geojson.object.Geometry;
 import java.lang.reflect.Type;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
- * Interface representing a custom serializer for Feature.
+ * Provides the implementation of the serialization for Feature.
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class FeatureSerializer implements JsonSerializer<Feature> {
 
+    private static final Logger LOGGER = Logger.getLogger(FeatureSerializer.class.getName());    
+    
     @Override
     public JsonElement serialize(Feature feature, Type type, JsonSerializationContext context) {
         JsonObject object = new JsonObject();

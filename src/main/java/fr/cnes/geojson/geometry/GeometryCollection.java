@@ -18,9 +18,12 @@
  ******************************************************************************/
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.Utils;
 import fr.cnes.geojson.object.Geometry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a list of geometries.
@@ -28,24 +31,40 @@ import java.util.List;
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class GeometryCollection extends Geometry {
-
+    
     private static final String GEOMETRY_COLLECTION_STRING = "GeometryCollection";
-
+    private static final Logger LOGGER = Logger.getLogger(GeometryCollection.class.getName());
+    
     /**
      * Creates an empty geometry collection.
      */
-    public GeometryCollection() {
+    protected GeometryCollection() {
         super(GEOMETRY_COLLECTION_STRING);
+        LOGGER.entering(GeometryCollection.class.getName(), "Constructor");
         this.coordinates = new ArrayList<>();
+        LOGGER.exiting(GeometryCollection.class.getName(), "Constructor");        
     }
+    
+    /**
+     * Creates an empty geometry with options for GeoJsonWriter
+     * @param options the {@link fr.cnes.geojson.GeoJsonWriter#options options}
+     */
+    public GeometryCollection(final Map<String, Object> options) {
+        this();
+        LOGGER.entering(GeometryCollection.class.getName(), "Constructor", options);        
+        this.setOptions(options);
+        LOGGER.exiting(GeometryCollection.class.getName(), "Constructor");        
+    }    
 
     /**
-     * Add a geometry.
+     * Adds a geometry to the collection.
      * @param geometry geometry 
      */
     public void addGeometry(final Geometry geometry) {
+        LOGGER.entering(GeometryCollection.class.getName(), "addGeometry", geometry.length());        
         List<Geometry> geometryCollection = (List<Geometry>) this.coordinates;
         geometryCollection.add(geometry);
+        LOGGER.exiting(GeometryCollection.class.getName(), "addGeometry");        
     }
 
     /**
@@ -53,13 +72,25 @@ public class GeometryCollection extends Geometry {
      * @param geometryCollection geometry collection
      */
     public void setGeometries(final List<Geometry> geometryCollection) {
+        LOGGER.entering(GeometryCollection.class.getName(), "setGeometries", geometryCollection.size());        
         this.coordinates = geometryCollection;
+        LOGGER.exiting(GeometryCollection.class.getName(), "setGeometries");        
     }
+    
+    @Override
+    public void setCoordinates(final Object coordinates) {
+        LOGGER.entering(GeometryCollection.class.getName(), "setCoordinates");        
+        setGeometries((List<Geometry>) coordinates);
+        LOGGER.exiting(GeometryCollection.class.getName(), "setCoordinates");        
+    }    
 
     @Override
     public List<Geometry> getCoordinates() {
+        LOGGER.entering(GeometryCollection.class.getName(), "getCoordinates");        
+        LOGGER.exiting(GeometryCollection.class.getName(), "getCoordinates", ((List<Geometry>) this.coordinates).size());        
         return (List<Geometry>) this.coordinates;
     }
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -68,7 +99,6 @@ public class GeometryCollection extends Geometry {
         if (obj == null) {
             return false;
         }
-
         if (getClass() != obj.getClass()) {
             return false;
         }
@@ -98,12 +128,8 @@ public class GeometryCollection extends Geometry {
     }
 
     @Override
-    public void setCoordinates(final Object coordinates) {
-        setGeometries((List<Geometry>) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
+        LOGGER.entering(GeometryCollection.class.getName(), "computeBbox");                
         List<Geometry> geoms = getCoordinates();
         double minLongValue = Double.MAX_VALUE;
         double minLatValue = Double.MAX_VALUE;
@@ -128,22 +154,27 @@ public class GeometryCollection extends Geometry {
                 maxLatValue = Math.max(maxLatValue, bbox[3]);
             }
         }
-        if(180-0.00001 <= maxLongValue - minLongValue && maxLongValue-minLongValue <= 180+0.00001) {
+        if(180-Utils.EPSILON <= maxLongValue - minLongValue && maxLongValue-minLongValue <= 180+Utils.EPSILON) {
             if(minLatValue > 0 ) {
                 maxLatValue = 90;
             } else {
                 minLatValue = -90;
             }
         }
-        this.setBbox(maxAltValue != Double.MIN_VALUE
+        double[] bbox = maxAltValue != Double.MIN_VALUE 
                 ? new double[]{minLongValue, minLatValue, minAltValue, maxLongValue, maxLatValue, maxAltValue}
-                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue});
+                : new double[]{minLongValue, minLatValue, maxLongValue, maxLatValue};
+        LOGGER.exiting(GeometryCollection.class.getName(), "computeBbox", bbox);                        
+        this.setBbox(bbox);
     }
 
     @Override
     public int length() {
+        LOGGER.entering(GeometryCollection.class.getName(), "length");                        
         List<Geometry> geometryCollection = (List<Geometry>) this.coordinates;
-        return geometryCollection == null ? 0 : geometryCollection.size();
+        int length = geometryCollection == null ? 0 : geometryCollection.size();
+        LOGGER.exiting(GeometryCollection.class.getName(), "length", length);                                
+        return length;
     }
 
 }

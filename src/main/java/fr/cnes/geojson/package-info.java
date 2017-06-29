@@ -59,18 +59,20 @@
  * </code><br>
  * To parse the GeoJSON, you will need to call the following method :<br>
  * <code>
- *         Feature feature = GeoJsonParser.parse(expResult);
+ * GeoJsonParser parser = new GeoJsonParser();
+ * Feature feature = parser.parse(expResult);
  * </code><br><br>
  * In the case where your GeoJson is a FeatureCollection, then you will need
  * to call :<br>
  * <code>
- *         FeatureCollection featureCollection = GeoJsonParser.parse(expResult);  
+ * FeatureCollection featureCollection = parser.parse(expResult);  
  * </code>
  * 
  * <h2>How to write GeoJson ?</h2>
  * To write a Feature or a featureCollection, call this method:<br>
  * <code>
- *      String result = GeoJsonWriter.toJson(featureCollection);
+ * GeoJsonWriter writer = new GeoJsonWriter();
+ * String result = writer.toJson(featureCollection);
  * </code>
  */
 package fr.cnes.geojson;

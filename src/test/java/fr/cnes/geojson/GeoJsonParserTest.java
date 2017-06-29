@@ -19,6 +19,9 @@ import static org.junit.Assert.*;
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class GeoJsonParserTest {
+    
+    GeoJsonParser parser;
+    GeoJsonWriter writer;
 
     public GeoJsonParserTest() {
     }
@@ -33,6 +36,9 @@ public class GeoJsonParserTest {
 
     @Before
     public void setUp() {
+        parser = new GeoJsonParser();
+        writer = new GeoJsonWriter();
+        writer.getOptions().put(GeoJsonWriter.PRETTY_DISPLAY, true);
     }
 
     @After
@@ -79,8 +85,8 @@ public class GeoJsonParserTest {
                 + "  },\n"
                 + "  \"properties\": null\n"
                 + "}";
-        Feature feature = GeoJsonParser.parse(expResult);
-        String result = GeoJsonWriter.toJson(feature);
+        Feature feature = parser.parse(expResult);
+        String result = writer.toJson(feature);
         assertEquals(expResult, result);
     }
     
@@ -169,8 +175,8 @@ public class GeoJsonParserTest {
                 + "    }\n"
                 + "  ]\n"
                 + "}";
-        FeatureCollection featureColl = GeoJsonParser.parse(expResult);
-        String result = GeoJsonWriter.toJson(featureColl);
+        FeatureCollection featureColl = parser.parse(expResult);
+        String result = writer.toJson(featureColl);
         System.out.println(result);
         assertEquals(expResult, result);        
     }    

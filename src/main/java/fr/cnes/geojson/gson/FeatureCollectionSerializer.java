@@ -27,12 +27,15 @@ import fr.cnes.geojson.object.FeatureCollection;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Interface representing a custom serializer for FeatureCollection.
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class FeatureCollectionSerializer implements JsonSerializer<FeatureCollection> {
+    
+    private static final Logger LOGGER = Logger.getLogger(FeatureCollectionSerializer.class.getName());    
 
     @Override
     public JsonElement serialize(FeatureCollection featureCollection, Type type, JsonSerializationContext context) {

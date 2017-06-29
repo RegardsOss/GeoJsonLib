@@ -19,7 +19,9 @@
 package fr.cnes.geojson.object;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * A Feature object represents a spatially bounded thing.  
@@ -41,6 +43,8 @@ import java.util.Objects;
 public class Feature extends GeoJsonObject {
 
     private static final String TYPE = "Feature";
+    private static final Logger LOGGER = Logger.getLogger(Feature.class.getName());    
+
 
     /**
      * Optional identifier.
@@ -56,11 +60,16 @@ public class Feature extends GeoJsonObject {
      * Properties.
      */
     private HashMap<String, Object> properties = new HashMap<>();
+    
+    public Feature(final Map<String, Object> options) {
+        this();
+        this.setOptions(options);
+    }
 
     /**
      * Creates an empty Feature.
      */
-    public Feature() {
+    protected Feature() {
         super(TYPE);
     }
 

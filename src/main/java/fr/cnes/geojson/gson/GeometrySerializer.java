@@ -1,4 +1,5 @@
- /******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2017 CNES - CENTRE NATIONAL d'ETUDES SPATIALES
  *
  * This file is part of Regards.
@@ -15,7 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Regards.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ *****************************************************************************
+ */
 package fr.cnes.geojson.gson;
 
 import com.google.gson.JsonDeserializationContext;
@@ -27,17 +29,33 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import fr.cnes.geojson.crs.Crs;
 import fr.cnes.geojson.object.Geometry;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Interface representing a custom serializer/deserializer for Geometry.
+ * Provides the implementation of the serializer/deserializer for Geometry. 
  * @author Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
  */
 public class GeometrySerializer implements JsonSerializer<Geometry>, JsonDeserializer<Geometry> {
+    
+    private static final Logger LOGGER = Logger.getLogger(GeometrySerializer.class.getName());    
+    
+    private Map<String, Object> options = new HashMap<>();
+ 
+    public GeometrySerializer() {
+        super();
+    }
+
+    public GeometrySerializer(final Map<String, Object> options) {
+        super();
+        this.options = options;
+    }
 
     @Override
     public JsonElement serialize(Geometry geometry, Type type, JsonSerializationContext context) {
@@ -74,11 +92,11 @@ public class GeometrySerializer implements JsonSerializer<Geometry>, JsonDeseria
         Geometry geometry = null;
         try {
             Class<?> geometryClass = Class.forName("fr.cnes.geojson.geometry." + geoType);
-            Method method = geometryClass.getMethod("getCoordinates", null);
+            Method method = geometryClass.getMethod("getCoordinates", (Class<?>) null);
             Class returnType = method.getReturnType();
-            geometry = (Geometry) geometryClass.newInstance();
+            geometry = (Geometry) geometryClass.getConstructor(Map.class).newInstance(this.options);
             geometry.setCoordinates(context.deserialize(jsonObject.get("coordinates"), returnType));
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | NoSuchMethodException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(GeometrySerializer.class.getName()).log(Level.SEVERE, null, ex);
         }
         return geometry;

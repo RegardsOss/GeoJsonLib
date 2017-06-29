@@ -1,4 +1,5 @@
- /******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2017 CNES - CENTRE NATIONAL d'ETUDES SPATIALES
  *
  * This file is part of Regards.
@@ -15,12 +16,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Regards.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package fr.cnes.geojson.geometry;
 
+import fr.cnes.geojson.GeoJsonWriter;
 import fr.cnes.geojson.Utils;
 import fr.cnes.geojson.object.Geometry;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Provides a planetographic point.
@@ -30,31 +35,58 @@ import java.util.Arrays;
 public class Point extends Geometry {
 
     private static final String POINT = "Point";
-
+    private static final Logger LOGGER = Logger.getLogger(Point.class.getName());
+    
+    /**
+     * Creates a point based on the GeoJsonWriter options.
+     * @param options the options
+     */
+    public Point(final Map<String, Object> options) {
+        this();
+        this.setOptions(options);
+    }
+    
     /**
      * Constructs a point without its coordinates.
      */
-    public Point() {
+    protected Point() {
         super(POINT);
-
     }
+    
+    /**
+     * Creates a point based on its position and the GeoJsonWriter options.
+     * @param position position
+     * @param options options
+     */
+    public Point(double[] position, final Map<String, Object> options) {
+        this(position);
+        this.setOptions(options);
+    }    
 
     /**
-     * Constructs a point with its coordinates.
-     *
+     * Constructs a point from its coordinates.     
      * @param position position as longitude, latitude [,altitude]
      */
-    public Point(double[] position) {
+    protected Point(double[] position) {
         this();
         setPoint(position);
     }
+    
+    /**
+     * Creates a point based on its position and the GeoJsonWriter options.
+     * @param position position
+     * @param options options
+     */
+    public Point(final Position position, final Map<String, Object> options) {
+        this(position);
+        this.setOptions(options);
+    }    
 
     /**
-     * Constructs a point based on Position object.
-     *
+     * Constructs a point based on Position object.    
      * @param position position of the point
      */
-    public Point(final Position position) {
+    protected Point(final Position position) {
         this();
         setPoint(position);
     }
@@ -66,14 +98,37 @@ public class Point extends Geometry {
      */
     final public void setPoint(double[] position) {
         Utils.checkNotNull(position);
-        this.coordinates = position;
+        this.fixLongitude(position);
+        this.coordinates = position;       
     }
 
+    /**
+     * Set the point from its position
+     * @param position position
+     */
     final public void setPoint(Position position) {
-        Utils.checkNotNull(position);
-        this.coordinates = position.toArray();
+        setPoint(position.toArray());
     }
 
+    /**
+     * Fix longitudes.
+     * @param coordinates  coordinates
+     */
+    private void fixLongitude(double[] coordinates) {
+        if (this.getOptions().containsKey(GeoJsonWriter.FIX_LONGITUDE)
+                && (boolean) this.getOptions().get(GeoJsonWriter.FIX_LONGITUDE)) {
+            if(coordinates[0] > 180.0) {
+                coordinates[0] -= 360.0;
+            }
+        }
+    }
+
+    /**
+     * Returns the points
+     * @param <T> type
+     * @param type class to convert points
+     * @return the points
+     */
     public <T> T getPoints(Class<T> type) {
         T result;
         switch (type.getSimpleName()) {
@@ -88,6 +143,17 @@ public class Point extends Geometry {
         }
         return result;
     }
+    
+    @Override
+    public void setCoordinates(Object coordinates) {
+        if (coordinates instanceof Position) {
+            setPoint((Position) coordinates);            
+        } else if(coordinates instanceof double[]) {
+            setPoint((double[]) coordinates);            
+        } else {
+            throw new IllegalArgumentException("Coordinates type not found");
+        }
+    }    
 
     @Override
     public double[] getCoordinates() {
@@ -113,9 +179,9 @@ public class Point extends Geometry {
 
         if (getClass() != obj.getClass()) {
             return false;
-        }        
+        }
         Point point = (Point) obj;
-        if(!super.equals(obj)) {
+        if (!super.equals(obj)) {
             return false;
         }
         if (this.getCoordinates() == null) {
@@ -144,11 +210,6 @@ public class Point extends Geometry {
     }
 
     @Override
-    public void setCoordinates(Object coordinates) {
-        setPoint((double[]) coordinates);
-    }
-
-    @Override
     public void computeBbox() {
         double[] point = (double[]) coordinates;
         this.setBbox(point.length == 3
@@ -157,7 +218,7 @@ public class Point extends Geometry {
     }
 
     @Override
-    public int length() {        
+    public int length() {
         double[] point = (double[]) coordinates;
         return (point == null) ? 0 : point.length;
     }
